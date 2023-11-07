@@ -1,0 +1,97 @@
+    
+'Create a script that loops through all the stocks for one year:
+
+Sub stock_analysis()
+
+'adding to all worksheets
+For Each ws In Worksheets
+
+    ' Create variables for the ticker names & volume variables
+    Dim tickername As String
+     Dim ticker_volume_total As Double
+    ticker_volume_total = 0
+    Dim ticker_name_summary As Integer
+    ticker_name_summary = 2
+    
+    'adding yearly change variables
+    Dim Year_Change As Double
+    Dim Open_Price As Double
+    Open_Price = ws.Cells(2, 3).Value
+    
+    ' adding headers to excel sheet
+    ws.Cells(1, 9).Value = "Ticker"
+    ws.Cells(1, 10).Value = "Yearly Change"
+    ws.Cells(1, 11).Value = "Percent Change"
+    ws.Cells(1, 12).Value = "Total Stock Volume"
+
+    ' define last row
+    LastRow = ws.Cells(Rows.Count, 1).End(xlUp).Row
+
+    'create loop
+    For i = 2 To LastRow
+    
+     ' if then statement for when ticker name changes and to total item
+     If ws.Cells(i + 1, 1).Value <> ws.Cells(i, 1).Value Then
+     
+     'Define ticker
+     tickername = ws.Cells(i, 1).Value
+     
+     'define where to add volumes for next entry
+     ticker_volume_total = ticker_volume_total + ws.Cells(i, 7).Value
+     
+     'adding tickers and volume to column
+     ws.Cells(ticker_name_summary, 9).Value = tickername
+     ws.Cells(ticker_name_summary, 12).Value = ticker_volume_total
+     
+     'Find Closing Price
+     closing_price = ws.Cells(i, 6).Value
+     
+     'Year Change = Closing price on last day - Open Price on First Day
+     Yearly_Change = (closing_price - Open_Price)
+     
+     ' adding yearly change to column
+     ws.Cells(ticker_name_summary, 10).Value = Yearly_Change
+     
+     'Percent Change = (Close - Open/Open) *100
+     Percent_Change = (Yearly_Change / Open_Price)
+     
+     'adding percent change to column
+     ws.Cells(ticker_name_summary, 11).Value = Percent_Change
+     
+     'format as a percent - reference: https://www.statology.org/vba-percentage-format/
+     ws.Cells(ticker_name_summary, 11).NumberFormat = "0.00%"
+     
+      'add one to ticker summary
+      ticker_name_summary = ticker_name_summary + 1
+      
+    ' resetting total
+     ticker_volume_total = 0
+     
+     'resetting Open Price
+     Open_Price = ws.Cells(i + 1, 3)
+     
+     Else
+     'adding the volume of trade
+     ticker_volume_total = ticker_volume_total + ws.Cells(i, 7).Value
+       
+    End If
+    
+    Next i
+    
+    'conditional formatting of Year Change
+    'define last row or Year Change
+    
+    LastRowYC = ws.Cells(Rows.Count, 10).End(xlUp).Row
+    
+    For i = 2 To LastRowYC
+    
+    If Cells(i, 10).Value > 0 Then
+    ws.Cells(i, 10).Interior.ColorIndex = 4
+    Else: ws.Cells(i, 10).Interior.ColorIndex = 3
+    End If
+    
+    Next i
+    
+    Next ws
+    
+    End Sub
